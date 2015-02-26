@@ -1,13 +1,19 @@
 from server import app
-from flask import render_template
 
-from flask import g
-from flask.ext import restful
-
-from server import api, db, flask_bcrypt, auth
+from server import api, db, auth
 from model import User, Post
-from forms import UserCreateForm, SessionCreateForm, PostCreateForm
-from serializers import UserSerializer, PostSerializer
+from forms import UserCreateForm
+
+from datetime import datetime
+
+from flask import render_template, Blueprint
+from flask.ext.restful import Api, Resource, reqparse
+
+from authToken import AuthToken
+
+blueprint = Blueprint('view', __name__, template_folder='templates')
+
+auth = AuthToken()
 
 @app.route("/", methods=("GET","POST"))
 def index():
@@ -25,74 +31,142 @@ def index():
 
     return render_template('index.html', form=form)
 
-@auth.verify_password
-def verify_password(email, password):
-    user = User.query.filter_by(email=email).first()
-    if not user:
+@auth.verify_token
+def verify_passwd(auth_token):
+    user = User.verify_auth_token(auth_token)
+    if user:
+        return True
+    else:
         return False
-    g.user = user
-    return flask_bcrypt.check_password_hash(user.password, password)
 
-class UserView(restful.Resource):
-    def post(self):
-        form = UserCreateForm()
-        if not form.validate_on_submit():
-            return form.errors, 422
 
-        user = User(form.email.data, form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        return UserSerializer(user).data
+class postParams:
 
-class SessionView(restful.Resource):
-    def post(self):
-        form = SessionCreateForm()
-        if not form.validate_on_submit():
-            return form.errors, 422
+    """docstring for articleParams"""
 
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and flask_bcrypt.check_password_hash(user.password, form.password.data):
-            return UserSerializer(user).data, 201
-        return '', 401
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'title', type=str, required=True, help="No title", location='json')
+        self.reqparse.add_argument(
+            'body', type=str, required=True, help="No content", location='json')
 
-class PostListView(restful.Resource):
-    def get(self):
-        posts = Post.query.all()
-        return PostSerializer(posts, many=True).data
+class userParams:
+
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('email', type=str, help="NO username")
+        self.reqparse.add_argument('password', type=str, help="NO password")
+        self.reqparse.add_argument('token', type=str, help='NO token')
+
+
+class postAPI(Resource, postParams):
+
+    """docstring for articleApi"""
+
+    def get(self, id):
+        try:
+            result = Post.query.filter(Post.id == id).first()
+            pst = dict()
+            pst.update(result.as_dict())
+            pst.update(
+                {'author': result.user.email})
+            return pst
+            # return request.headers.get('Auth',"");
+        except Exception as e:
+            return False
+
+    @auth.login_required
+    def put(self, id):
+        args = self.reqparse.parse_args()
+        try:
+            post = Post.query.get(id)
+            post.title = args['title']
+            post.content = args['body']
+            db.session.commit()
+            return True
+        except Exception as e:
+            return e.message
+
+    @auth.login_required
+    def delete(self, id):
+        a = Post.query.get(id)
+        db.session.delete(a)
+        try:
+            db.session.commit()
+            return True
+        except Exception as e:
+            return False
+
+
+class articlesPageAPI(Resource, postParams):
+
+    """docstring for articleListAPI"""
+
+    def get(self, page, per_page):
+        offset = (page - 1) * per_page
+        try:
+            posts = Post.query.offset(offset).limit(per_page)
+            pstList = []
+            for post in posts:
+                temp = post.as_dict()
+                temp.update({"author": post.user.email})
+                pstList.append(temp)
+            return pstList
+        except Exception as e:
+            return e.message
+
+class postsAPI(Resource, postParams):
 
     @auth.login_required
     def post(self):
-        form = PostCreateForm()
-        if not form.validate_on_submit():
-            return form.errors, 422
-        post = Post(form.title.data, form.body.data)
-        db.session.add(post)
-        db.session.commit()
-        return PostSerializer(post).data, 201
+        args = self.reqparse.parse_args()
+        now = datetime.now()
+        a = Post(
+            user_id=1, title=args['title'], body=args['body'], time=now)
+        try:
+            db.session.add(a)
+            db.session.commit()
+            return True
+        except Exception as e:
+            return False
 
-class PostView(restful.Resource):
-    def get(self, id):
-        posts = Post.query.filter_by(id=id).first()
-        return PostSerializer(posts).data
+class userAPI(Resource, userParams):
 
+    """docstring for userAPI"""
 
-class Users(restful.Resource):
     def post(self):
+        args = self.reqparse.parse_args()
+        return User.verify_auth_token(args["token"])
 
-        form = UserCreateForm()
-        if not form.validate_on_submit():
-            return form.errors, 422
+class usersAPI(Resource, userParams):
 
-        user = User(form.email.data, form.password.data)
-        db.session.add(user)
-        db.session.commit()
+    """docstring for usersAPI"""
 
-        return UserSerializer(user).data
+    def post(self):
+        args = self.reqparse.parse_args()
+        user = User.query.filter(User.email==args['email']).first()
+        if user and user.verify_passwd(args['password']):
+            # return json.dumps(user.create_auth_token())
+            token = str(user.create_auth_token(), encoding='utf-8')
+            return {"token": token}
+        else:
+            return {"error": "Incorrect login or password"}
 
-api.add_resource(UserView, '/api/v1/users')
-api.add_resource(SessionView, '/api/v1/sessions')
-api.add_resource(PostListView, '/api/v1/posts')
-api.add_resource(PostView, '/api/v1/posts/<int:id>')
+
+api = Api(blueprint)
+api.add_resource(postAPI, "/app/post/<int:id>", endpoint="post")
+api.add_resource(postsAPI, "/app/posts", endpoint="articles")
+api.add_resource(
+    articlesPageAPI, "/post/list/<int:page>/<int:per_page>", endpoint="articlesPage")
+api.add_resource(userAPI, "/user/token", endpoint="userToken")
+api.add_resource(usersAPI, "/users", endpoint="users")
 
 
-api.add_resource(Users, '/api/v2/users')
+@blueprint.route("/admin/")
+def admin():
+    return render_template("admin.html")
+
+@blueprint.route("/app/")
+def app():
+    return render_template("app.html")

@@ -1,0 +1,42 @@
+<section class="postList view">
+    <header>
+        <h4> <i class="icon file"></i>
+            Post
+        </h4>
+        <a ui-sref="admin.postCreate" class="add btn flat">Add post</a>
+    </header>
+    <div class="inner-content">
+        <div class="tableList">
+            <div class="thead">
+                <span>title</span>
+                <span>author</span>
+                <span>time</span>
+            </div>
+            <div class="tbody" >
+                <div class="row show" ng-repeat="article in dataList" >
+                    <div class="do">
+                        <a href="">{{article.title}}</a>
+                        <p class="action">
+                            <a href="" item="{{article.id}}" type="post"  remove index="{{$index}}">删除</a>
+                            <a ui-sref="admin.postModify({id:{{article.id}}})" class="change">修改</a>
+                        </p>
+                    </div>
+                    <span>{{article.author}}</span>
+                    <span>{{article.time}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/ng-template" id="popConfirm">
+    <div class="popConfirm">
+        <p>确定要执行操作</p>
+        <button class="yes btn" ng-click="confirm('remove')">DO IT</button>
+        <button class="no btn" ng-click="closeThisDialog('cancle')">CANCLE</button>
+    </div>
+</script>
+<script type="text/ng-template" id="notify">
+    <div class="notify">
+        <p>{{ngDialogData.action}}完成</p>
+    </div>
+</script>

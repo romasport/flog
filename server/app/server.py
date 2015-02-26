@@ -33,3 +33,7 @@ def after_request(response):
     return response
  
 import views
+
+app.register_blueprint(views.blueprint)
+
+from authToken import AuthToken

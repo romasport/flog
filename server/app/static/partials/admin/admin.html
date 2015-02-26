@@ -1,0 +1,65 @@
+<nav dash-for>
+    <a ui-sref="." >
+        dashboard <i class="icon dashboard"></i>
+    </a>
+    <a ui-sref=".postList">
+        article <i class="icon file"></i>
+    </a>
+    <a ui-sref=".category">
+        category
+        <i class="icon tasks"></i>
+    </a>
+    <a ui-sref=".tag">
+        tag
+        <i class="icon tags"></i>
+    </a>
+    <a ui-sref=".media">
+        media
+        <i class="icon video"></i>
+    </a>
+</nav>
+<div class="admin-left">
+    <div class="tools">
+        <a ui-sref=".postCreate">
+            <i class="icon add"></i>
+        </a>
+        <a href="" ng-click="logout()">
+            <i class="icon off"></i>
+        </a>
+    </div>
+    <div class="fragment" ui-view>
+        <section class="dash view">
+    <header>
+        <h4> <i class="icon dashboard"></i>
+            Dashboard
+        </h4>
+    </header>
+    <div class="inner-content">
+        <h5>brief</h5>
+        <p>
+            <span>10</span>
+            posts
+        </p>
+        <p>
+            <span>20</span>
+            categorys
+        </p>
+        <p>
+            <span>30</span>
+            tags
+        </p>
+        <p>
+            <span>40</span>
+            medias
+        </p>
+    </div>
+</section>
+    </div>
+</div>
+<script type="text/ng-template" id="logout">
+    <div class="logout">
+        <p>确定要退出系统</p>
+        <button class="yes btn" ng-click="confirm('remove')">DO IT</button>
+        <button class="no btn" ng-click="closeThisDialog('cancle')">CANCLE</button>
+    </div>
+</script>
