@@ -13,16 +13,16 @@
                 <span>time</span>
             </div>
             <div class="tbody" >
-                <div class="row show" ng-repeat="article in dataList" >
+                <div class="row show" ng-repeat="post in dataList" >
                     <div class="do">
-                        <a href="">{{article.title}}</a>
+                        <a href="">{{post.title}}</a>
                         <p class="action">
-                            <a href="" item="{{article.id}}" type="post"  remove index="{{$index}}">删除</a>
-                            <a ui-sref="admin.postModify({id:{{article.id}}})" class="change">修改</a>
+                            <a href="" item="{{post.id}}" type="post"  remove index="{{$index}}">remove</a>
+                            <a ui-sref="admin.postModify({id:{{post.id}}})" class="change">change</a>
                         </p>
                     </div>
-                    <span>{{article.author}}</span>
-                    <span>{{article.time}}</span>
+                    <span>{{post.author}}</span>
+                    <span>{{post.created_at}}</span>
                 </div>
             </div>
         </div>
@@ -30,13 +30,13 @@
 </section>
 <script type="text/ng-template" id="popConfirm">
     <div class="popConfirm">
-        <p>确定要执行操作</p>
+        <p>ghfghfg</p>
         <button class="yes btn" ng-click="confirm('remove')">DO IT</button>
         <button class="no btn" ng-click="closeThisDialog('cancle')">CANCLE</button>
     </div>
 </script>
 <script type="text/ng-template" id="notify">
     <div class="notify">
-        <p>{{ngDialogData.action}}完成</p>
+        <p>{{ngDialogData.action}}action</p>
     </div>
 </script>

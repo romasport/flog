@@ -6,7 +6,7 @@ from server import db, flask_bcrypt
 from datetime import datetime
 from itsdangerous import (
     JSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
-SECRET_KEY = "szdvfgsdfvsdgsdtgtjkuykiuloi;ljhtgfsafas"
+SECRET_KEY = "szdvfgsdfvsdgsdtgtjkuykiuloiljhtgfsafas"
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,7 +36,7 @@ class User(db.Model):
 
     @staticmethod
     def verify_auth_token(token):
-        token = bytes(token, encoding='utf-8')
+        token = bytes(token)
         s = Serializer(SECRET_KEY)
         try:
             data = s.loads(token)
@@ -51,6 +51,8 @@ class User(db.Model):
         else:
             return False
 
+
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
@@ -59,10 +61,11 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.now())
     image = db.Column(db.String(300))
 
-    def __init__(self, title, body):
+    def __init__(self, user_id, title, body, time):
+        self.user_id = user_id
         self.title = title
         self.body = body
-        self.user_id = g.user.id
+        self.created_at = time
 
     def __repr__(self):
         return '<Post %r>' % self.title

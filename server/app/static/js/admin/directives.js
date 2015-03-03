@@ -99,7 +99,7 @@ define(['app','ngDialog','tinymce'], function(app) {
                             }
                         });
                         ed.on('blur', function(e) {
-                            elm.blur();
+                            //elm.blur();
                         });
                         // Update model when an object has been resized (table, image)
                         ed.on('ObjectResized', function(e) {
@@ -113,14 +113,14 @@ define(['app','ngDialog','tinymce'], function(app) {
                     },
                     mode: 'exact',
                     elements: attrs.id,
-                    skin: "light",
-                    language: 'zh_CN',
+                    skin: "lightgray",
+                    //language: 'zh_CN',
                     relative_urls: false,
-                    font_formats: '微软雅黑=微软雅黑;宋体=宋体;黑体=黑体;仿宋=仿宋;楷体=楷体;隶书=隶书;幼圆=幼圆;',
+                    //font_formats: '微软雅黑=微软雅黑;宋体=宋体;黑体=黑体;仿宋=仿宋;楷体=楷体;隶书=隶书;幼圆=幼圆;',
                     plugins: [
                         "advlist autolink lists link image charmap print preview anchor",
                         "searchreplace visualblocks code fullscreen",
-                        "insertdatetime media table contextmenu paste textcolor wordcount advimage"
+                        "insertdatetime media table contextmenu paste textcolor wordcount"
                     ],
                     toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | forecolor backcolor | fontselect fontsizeselect | advimage"
                 };

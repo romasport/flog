@@ -78,7 +78,15 @@ class postAPI(Resource, postParams):
 
     @auth.login_required
     def put(self, id):
-        args = self.reqparse.parse_args()
+
+        parser = reqparse.RequestParser()
+        parser.add_argument(
+            'title', type=str, required=True, help="No title", location='json')
+        parser.add_argument(
+            'body', type=str, required=True, help="No content", location='json')
+
+        args = parser.parse_args()
+
         try:
             post = Post.query.get(id)
             post.title = args['title']
@@ -120,7 +128,14 @@ class postsAPI(Resource, postParams):
 
     @auth.login_required
     def post(self):
-        args = self.reqparse.parse_args()
+
+        parser = reqparse.RequestParser()
+        parser.add_argument(
+            'title', type=str, required=True, help="No title", location='json')
+        parser.add_argument(
+            'body', type=str, required=True, help="No content", location='json')
+
+        args = parser.parse_args()
         now = datetime.now()
         a = Post(
             user_id=1, title=args['title'], body=args['body'], time=now)
@@ -136,7 +151,12 @@ class userAPI(Resource, userParams):
     """docstring for userAPI"""
 
     def post(self):
-        args = self.reqparse.parse_args()
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('token', type=str)
+        args = parser.parse_args()
+
+        #args = self.reqparse.parse_args()
         return User.verify_auth_token(args["token"])
 
 class usersAPI(Resource, userParams):
@@ -144,11 +164,19 @@ class usersAPI(Resource, userParams):
     """docstring for usersAPI"""
 
     def post(self):
-        args = self.reqparse.parse_args()
+
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('email', type=str, help="NO username")
+        parser.add_argument('password', type=str, help="NO password")
+        parser.add_argument('token', type=str, help='NO token')
+        args = parser.parse_args()
+
+        #args = self.reqparse.parse_args()
         user = User.query.filter(User.email==args['email']).first()
         if user and user.verify_passwd(args['password']):
             # return json.dumps(user.create_auth_token())
-            token = str(user.create_auth_token(), encoding='utf-8')
+            token = str(user.create_auth_token())
             return {"token": token}
         else:
             return {"error": "Incorrect login or password"}
@@ -156,7 +184,7 @@ class usersAPI(Resource, userParams):
 
 api = Api(blueprint)
 api.add_resource(postAPI, "/app/post/<int:id>", endpoint="post")
-api.add_resource(postsAPI, "/app/posts", endpoint="articles")
+api.add_resource(postsAPI, "/app/posts", endpoint="posts")
 api.add_resource(
     articlesPageAPI, "/post/list/<int:page>/<int:per_page>", endpoint="articlesPage")
 api.add_resource(userAPI, "/user/token", endpoint="userToken")

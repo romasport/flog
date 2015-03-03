@@ -28,15 +28,15 @@ define(['app','angular-ui-router'],function(app){
                         }]
                     }
                 }).state('admin.postModify', {
-                    url: '/post/modify/{id:[0-9]+}',
+                    url: 'post/modify/{id:[0-9]+}',
                     templateUrl: '/static/partials/admin/postAction.html',
                     controller: 'postActionCtr'
                 }).state('admin.postList', {
-                    url: '/post/list',
+                    url: 'post/list',
                     templateUrl: '/static/partials/admin/postList.html',
                     controller: 'postListCtr'
                 }).state('admin.postCreate', {
-                    url: '/post/create',
+                    url: 'post/create',
                     templateUrl: '/static/partials/admin/postAction.html',
                     controller: 'postActionCtr'
                 }).state('login', {

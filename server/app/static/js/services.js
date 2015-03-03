@@ -28,7 +28,7 @@ define(['angular','angular-resource'], function(angular) {
         })
     }]).
     factory('Posts', ['$resource', 'Auth', function($resource, Auth) {
-        return $resource("/posts", {}, {
+        return $resource("/app/posts", {}, {
             'save': {
                 method: 'POST',
                 headers: {

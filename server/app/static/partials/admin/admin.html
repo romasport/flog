@@ -5,14 +5,6 @@
     <a ui-sref=".postList">
         article <i class="icon file"></i>
     </a>
-    <a ui-sref=".category">
-        category
-        <i class="icon tasks"></i>
-    </a>
-    <a ui-sref=".tag">
-        tag
-        <i class="icon tags"></i>
-    </a>
     <a ui-sref=".media">
         media
         <i class="icon video"></i>
@@ -21,10 +13,10 @@
 <div class="admin-left">
     <div class="tools">
         <a ui-sref=".postCreate">
-            <i class="icon add"></i>
+            <i class="icon add">create post</i>
         </a>
         <a href="" ng-click="logout()">
-            <i class="icon off"></i>
+            <i class="icon off">logout</i>
         </a>
     </div>
     <div class="fragment" ui-view>
@@ -58,7 +50,7 @@
 </div>
 <script type="text/ng-template" id="logout">
     <div class="logout">
-        <p>确定要退出系统</p>
+        <p>vihod</p>
         <button class="yes btn" ng-click="confirm('remove')">DO IT</button>
         <button class="no btn" ng-click="closeThisDialog('cancle')">CANCLE</button>
     </div>

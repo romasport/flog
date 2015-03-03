@@ -1,7 +1,7 @@
 define(['app','services','ngDialog','angular-ui-router'],function(app){
     app.
     controller('postListCtr', ['$scope', 'getList', function($scope, getList) {
-        getList('article', 1, 10).success(function(data) {
+        getList('post', 1, 10).success(function(data) {
             $scope.dataList = data;
         })
     }]).
@@ -21,16 +21,10 @@ define(['app','services','ngDialog','angular-ui-router'],function(app){
             });
         }
     }]).
-    controller('postActionCtr', ['$scope', '$location', 'Posts', 'Post', '$stateParams', 'Categorys', 'Category', 'ngDialog', function($scope, $location, Posts, Post, $stateParams, Categorys, Category, ngDialog) {
-        var id = $stateParams.id
+    controller('postActionCtr', ['$scope', '$location', 'Posts', 'Post', '$stateParams', 'ngDialog', function($scope, $location, Posts, Post, $stateParams, ngDialog) {
+        var id = $stateParams.id;
         $scope.formData = {};
-        $scope.postCategory = {};
-        /*先处理category*/
-        Categorys.query(function(d) {
-            $scope.categoryList = d;
-        })
-        $scope.createCategory = ""; //新建category的数据model
-        $scope.postCategory.data = []; //要提交的cetegory的数据model
+        /*category*/
         function resetData(ob) {
             for (var i in ob) {
                 if (typeof(ob[i]) == 'string') {
@@ -55,20 +49,6 @@ define(['app','services','ngDialog','angular-ui-router'],function(app){
                 }
             })
         }
-        $scope.categoryAdd = function() {
-            var category = new Categorys();
-            category.name = $scope.createCategory;
-            category.$save(function() { //提交分类
-                Category.get({
-                    id: $scope.createCategory
-                }, function(d) { //获取提交分类的id
-                    $scope.categoryList.push({
-                            'id': d.id,
-                            'name': d.name
-                        }) //更新到scope作用域中
-                })
-            })
-        }
 
         if (id) {
             /*modify post*/
@@ -78,31 +58,24 @@ define(['app','services','ngDialog','angular-ui-router'],function(app){
             }, function(d) {
                 $scope.formData = d;
                 /*set exist category*/
-                for (var i = 0; i < d.category.length; i++) {
-                    $scope.postCategory.data.push(d.category[i].id)
-                }
 
             })
 
             $scope.postAction = function() {
                 var post = new Post();
                 post.title = $scope.formData.title;
-                post.content = $scope.formData.content;
-                post.category = $scope.postCategory.data;
-                if (!post.category.length) {
-                    notify("分类必须填写");
-                } else {
-                    post.$update({
-                        id: id
-                    }, function() {
-                        notify("文章更新成功");
-                        $scope.$on("ngDialog.closed", function() {
-                            $scope.$apply(function() {
-                                $location.path("/post/list");
-                            })
+                post.body = $scope.formData.body;
+
+                post.$update({
+                    id: id
+                }, function() {
+                    notify("update");
+                    $scope.$on("ngDialog.closed", function() {
+                        $scope.$apply(function() {
+                            $location.path("/post/list");
                         })
-                    });
-                }
+                    })
+                });
             }
 
         } else {
@@ -111,20 +84,15 @@ define(['app','services','ngDialog','angular-ui-router'],function(app){
             $scope.postAction = function() {
                 var post = new Posts();
                 post.title = $scope.formData.title;
-                post.content = $scope.formData.content;
-                post.category = $scope.postCategory.data;
-                if (!post.category.length) {
-                    notify("分类必须填写")
-                } else {
-                    post.$save({}, function(success) { //post success  callback
-                        resetData($scope.formData);
-                        $scope.postCategory.data = [];
-                        $scope.post.$setPristine();
-                        notify("文章添加成功")
-                    }, function(error) { //post error callback
-                        notify("文章添加失败: " + error.statusText)
-                    });
-                }
+                post.body = $scope.formData.body;
+
+                post.$save({}, function(success) { //post success  callback
+                    resetData($scope.formData);
+                    $scope.post.$setPristine();
+                    notify("Article successfully added")
+                }, function(error) { //post error callback
+                    notify("Failed to add articles: " + error.statusText)
+                });
             }
         }
     }]).
@@ -133,8 +101,8 @@ define(['app','services','ngDialog','angular-ui-router'],function(app){
         $scope.signIn = function() {
             $scope.loading = true;
             $http.post('/users', {
-                username: $scope.loginData.username,
-                passwd: $scope.loginData.passwd
+                email: $scope.loginData.email,
+                password: $scope.loginData.password
             }).then(function(d) {
                 $scope.loading = false;
                 if (d.data.token) {

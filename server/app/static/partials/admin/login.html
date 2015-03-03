@@ -4,8 +4,8 @@
     </header>    
     <div class="loginField">
         <form novalidate name="login" ng-submit="signIn()">
-                <input type="text" name="username" placeholder="Username" ng-model='loginData.username' required>
-                <input type="password" name="passwd" placeholder="Password" ng-model='loginData.passwd' required>
+                <input type="text" name="email" placeholder="email" ng-model='loginData.email' required>
+                <input type="password" name="password" placeholder="Password" ng-model='loginData.password' required>
             <button ng-disabled="login.$invalid" ng-class="{'active':login.$valid,'loading':loading}" ><i class="triangle right icon"></i></button>
         </form>
     </div>
